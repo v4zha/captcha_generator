@@ -4,9 +4,12 @@ import random
 
 
 class captcha():
-    def __init__(self, length, noise):
+    def __init__(self, length, noise,img_name):
+
         # setup background image
-        img_arr = np.zeros(shape=(65, 150, 3), dtype=np.uint8)
+        self.img_width=150
+        self.img_height=65
+        img_arr = np.zeros(shape=(self.img_width, self.img_width, 3), dtype=np.uint8)
         self.bg_array = {"black": img_arr, "white": img_arr+255}
         if random.randint(0, 1) == 0:
             self.bg_clr = "black"
@@ -16,14 +19,15 @@ class captcha():
             self.bg_clr = "white"
             self.font_clr = "black"
             self.geo_clr = "black"
-
+        
         self.captcha_text = self.get_text(length)
         # self.font_clr,self.geo_clr=self.get_clr()
-        self.font_name = "font"+str(random.randint(11, 17))+".ttf"
+        self.font_name =str(random.randint(1, 13)).zfill(2)+".ttf"
         self.font_size = 28
         self.noise = noise
         self.img = Image.fromarray(self.bg_array[self.bg_clr])
         self.text_coord = (20, 11)
+        self.img_name="./static/captcha_img/"+img_name+".png"
 
     def get_text(self, length):
         tot_char = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890"
@@ -46,11 +50,16 @@ class captcha():
     def add_text(self):
         draw = ImageDraw.Draw(self.img)
         font = ImageFont.truetype('./font/'+self.font_name, self.font_size)
-        draw.text(self.text_coord, self.captcha_text,
-                  font=font, fill=self.font_clr)
+        print(self.font_name)
+        x,y=(self.text_coord)
+        for i in range(len(self.captcha_text)):            
+            fac=random.randint(int(self.img_height/3),int(2*self.img_height/3))
+            del_y=fac+y
+            draw.text((x,del_y), self.captcha_text[i],font=font, fill=self.font_clr)
+            x+=self.img_width/7
 
     def save_img(self):
-        self.img.save('captcha.png')
+        self.img.save(self.img_name)
 
     def add_geo(self):
         # 0->line
@@ -59,14 +68,17 @@ class captcha():
         # 3->arc
         # def text coord-> 20,11
         # image size -> 65, 150
+        height_fac=int(self.img_height/2)
+        width_fac=int(self.img_width/2)
+
         img_draw = ImageDraw.Draw(self.img)
         lines = random.randint(4, 7)
         for i in range(0, lines):
             try:
-                x1 = random.randint(0, 150)
-                y1 = random.randint(0, 65)
-                x2 = random.randint(0, 150)
-                y2 = random.randint(0, 65)
+                x1 = random.randint(0, self.img_width)
+                y1 = random.randint(0, self.img_width)
+                x2 = random.randint(0, self.img_width)
+                y2 = random.randint(0, self.img_width)
                 img_draw.line(((x1, y1), (x2, y2)), width=1, fill=self.geo_clr)
             except Exception as err:
                 print(err)
@@ -80,13 +92,13 @@ class captcha():
 
                 # 1-> rectangle
                 # lower left x coordinate
-                x1 = random.randint(0, 75)
+                x1 = random.randint(0, width_fac)
                 # lower left y coordinate
-                y1 = random.randint(0, 32)
+                y1 = random.randint(0, height_fac)
                 # upper right x coordinate
-                x2 = random.randint(75, 150)
+                x2 = random.randint(width_fac+1, self.img_width)
                 # upper right y coordinate
-                y2 = random.randint(33, 65)
+                y2 = random.randint(height_fac+1, self.img_width)
                 # draw rectangle :)
 
                 img_draw.rectangle(((x1, y1), (x2, y2)), outline=self.geo_clr)
@@ -95,26 +107,26 @@ class captcha():
                 # 2->ellipse
                 # create bounding box :)
                 # lower left x coordinate
-                x1 = random.randint(0, 75)
+                x1 = random.randint(0, width_fac)
                 # lower left y coordinate
-                y1 = random.randint(0, 32)
+                y1 = random.randint(0,height_fac)
                 # upper right x coordinate
-                x2 = random.randint(75, 150)
+                x2 = random.randint(width_fac+1, self.img_width)
                 # upper right y coordinate
-                y2 = random.randint(33, 65)
+                y2 = random.randint(height_fac+1, self.img_width)
                 # draw ellipse
                 img_draw.ellipse(((x1, x2), (y1, y2)), outline=self.geo_clr)
 
             if 3 in shape_gen:
                 # create bounding box :)
                 # lower left x coordinate
-                x1 = random.randint(0, 75)
+                x1 = random.randint(0, width_fac)
                 # lower left y coordinate
-                y1 = random.randint(0, 32)
+                y1 = random.randint(0, height_fac)
                 # upper right x coordinate
-                x2 = random.randint(75, 150)
+                x2 = random.randint(width_fac+1, self.img_width)
                 # upper right y coordinate
-                y2 = random.randint(33, 65)
+                y2 = random.randint(height_fac+1, self.img_width)
                 # start angle  in degree
                 start = random.randint(0, 90)
                 # end angle in degree
@@ -127,12 +139,4 @@ class captcha():
         self.add_text()
         self.add_noise()
         self.save_img()
-
-
-def main():
-    cap = captcha(5, 0.06)
-    cap.generate_captcha()
-
-
-if __name__ == "__main__":
-    main()
+        return self.captcha_text
