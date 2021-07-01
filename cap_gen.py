@@ -2,7 +2,7 @@ from PIL import ImageFont, ImageDraw, Image
 import numpy as np
 import random
 
-
+#captcha generator with weird variable names :)
 class captcha():
     def __init__(self, length, noise,img_name):
 
@@ -28,7 +28,7 @@ class captcha():
         self.img = Image.fromarray(self.bg_array[self.bg_clr])
         self.text_coord = (int(self.img_width/10),0)
         self.img_name="./static/captcha_img/"+img_name+".png"
-
+        
     def get_text(self, length):
         tot_char = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890"
         captcha = "".join(random.sample(tot_char, int(length)))
